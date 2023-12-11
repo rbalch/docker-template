@@ -1,0 +1,22 @@
+version: '3.7'
+
+services:
+  {name}:
+    container_name: {name}
+    build: .
+    volumes:
+      - .:/code
+      - root_hist:/root/hist # i keep roots history across everything
+      # - ~/.config/gcloud/.json:/.config/gcloud/application_default_credentials.json
+    stdin_open: true
+    tty: true
+    # ports:
+    #   - "8000:8000" # serving site
+    # environment:
+    #   STREAMLIT_SERVER_ADDRESS: 0.0.0.0
+    #   STREAMLIT_SERVER_PORT: 8000
+    #   # GOOGLE_CLOUD_PROJECT: 
+    #   # GOOGLE_APPLICATION_CREDENTIALS: '/.config/gcloud/.json'
+
+volumes:
+  root_hist:
