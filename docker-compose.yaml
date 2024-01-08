@@ -7,6 +7,7 @@ services:
     volumes:
       - .:/code
       - root_hist:/root/hist # i keep roots history across everything
+      - vscode-server:/root/.vscode-server
       # - ~/.config/gcloud/.json:/.config/gcloud/application_default_credentials.json
     stdin_open: true
     tty: true
@@ -20,3 +21,8 @@ services:
 
 volumes:
   root_hist:
+    name: root_hist  
+  vscode-server:
+    name: vscode-server
+  huggingface-cache:
+    name: huggingface-cache

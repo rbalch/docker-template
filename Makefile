@@ -17,3 +17,6 @@ command:
 
 command-raw:
 	docker compose run ${IMAGE_NAME} bash
+
+command-raw-gpu:
+	docker compose -f docker-compose.yaml -f docker-extras/nvidia.yaml run ${IMAGE_NAME} bash
