@@ -21,8 +21,11 @@ services:
 
 volumes:
   root_hist:
-    name: root_hist  
+    name: root_hist
+    external: true
   vscode-server:
     name: vscode-server
+    external: true
   huggingface-cache:
     name: huggingface-cache
+    external: true
