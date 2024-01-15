@@ -6,7 +6,7 @@ services:
     build: .
     volumes:
       - .:/code
-      - root_hist:/root/hist # i keep roots history across everything
+      - root_hist:/root/history # i keep roots history across everything
       - vscode-server:/root/.vscode-server
       # - ~/.config/gcloud/.json:/.config/gcloud/application_default_credentials.json
     stdin_open: true
