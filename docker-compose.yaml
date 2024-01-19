@@ -19,6 +19,9 @@ services:
     #   STREAMLIT_SERVER_PORT: 8000
     #   # GOOGLE_CLOUD_PROJECT: 
     #   # GOOGLE_APPLICATION_CREDENTIALS: '/.config/gcloud/.json'
+    # entrypoint:
+    #   - python
+    #   - app.py
 
 volumes:
   root_hist:
