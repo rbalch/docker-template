@@ -1,4 +1,4 @@
-IMAGE_NAME = librarian
+IMAGE_NAME = 
 
 build:
 	docker compose -f docker-compose.yaml build
