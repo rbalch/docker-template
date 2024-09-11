@@ -1,5 +1,8 @@
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+debug = bool(os.getenv("DEBUG", False))
 
 
 app = FastAPI(
@@ -22,6 +25,12 @@ app.add_middleware(
 @app.get('/')
 async def home():
     return {'message': 'GLaDOS'}
+
+
+if debug:
+    import debugpy
+    debugpy.listen(("0.0.0.0", 5678))
+    print("VS Code debugger is ready to be attached, press F5 in VS Code...")
 
 
 if __name__ == '__main__':
