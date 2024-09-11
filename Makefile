@@ -20,3 +20,9 @@ command-raw:
 
 command-raw-gpu:
 	docker compose -f docker-compose.yaml -f docker-extras/nvidia.yaml run ${IMAGE_NAME} bash
+
+requirements-lock:
+	docker run --name temp-container -d ${IMAGE_NAME} tail -f /dev/null
+	docker cp temp-container:/code/requirements.lock .
+	docker stop temp-container
+	docker rm temp-container
