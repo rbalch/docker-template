@@ -6,9 +6,9 @@ debug = bool(os.getenv("DEBUG", False))
 
 
 app = FastAPI(
-    title='GLaDOS',
+    title='Home',
     version='1.0',
-    description='test agent api',
+    description='Home',
 )
 
 # Set all CORS enabled origins
@@ -24,7 +24,7 @@ app.add_middleware(
 
 @app.get('/')
 async def home():
-    return {'message': 'GLaDOS'}
+    return {'message': 'Home'}
 
 
 if debug:

@@ -1,7 +1,12 @@
-IMAGE_NAME = 
+IMAGE_NAME = mcp_playground
 
+# Normal build uses existing lock file
 build:
 	docker compose -f docker-compose.yaml build
+
+# Build with dependency updates
+build-update:
+	docker compose -f docker-compose.yaml build --build-arg UPDATE_DEPS=true
 
 up:
 	docker compose -f docker-compose.yaml up
@@ -21,8 +26,14 @@ command-raw:
 command-raw-gpu:
 	docker compose -f docker-compose.yaml -f docker-extras/nvidia.yaml run ${IMAGE_NAME} bash
 
-requirements-lock:
-	docker run --name temp-container -d ${IMAGE_NAME} tail -f /dev/null
-	docker cp temp-container:/code/requirements.lock .
-	docker stop temp-container
-	docker rm temp-container
+requirements-update:
+	@echo "Building with fresh dependencies..."
+	docker compose -f docker-compose.yaml build --build-arg UPDATE_DEPS=true
+	@echo "Extracting new requirements.lock..."
+	docker create --name temp-extract $$(docker compose -f docker-compose.yaml images -q ${IMAGE_NAME})
+	docker cp temp-extract:/code/requirements.lock .
+	docker rm temp-extract
+	@echo "requirements.lock has been updated"
+
+clean-requirements:
+	rm -f requirements.lock
