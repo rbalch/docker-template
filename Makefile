@@ -1,18 +1,29 @@
 IMAGE_NAME = mcp_playground
 
+# Helper to extract requirements.lock from container
+extract-lock:
+	@echo "Extracting requirements.lock..."
+	@docker create --name temp-extract $$(docker compose -f docker-compose.yaml images -q ${IMAGE_NAME})
+	@docker cp temp-extract:/code/requirements.lock .
+	@docker rm temp-extract
+	@echo "requirements.lock has been extracted"
+
 # Normal build uses existing lock file
 build:
 	docker compose -f docker-compose.yaml build
+	@$(MAKE) extract-lock
 
 # Build with dependency updates
 build-update:
 	docker compose -f docker-compose.yaml build --build-arg UPDATE_DEPS=true
+	@$(MAKE) extract-lock
 
 up:
 	docker compose -f docker-compose.yaml up
 
 build-gpu:
 	docker compose -f docker-compose.yaml -f docker-extras/nvidia.yaml build
+	@$(MAKE) extract-lock
 
 up-gpu:
 	docker compose -f docker-compose.yaml -f docker-extras/nvidia.yaml up
@@ -26,14 +37,11 @@ command-raw:
 command-raw-gpu:
 	docker compose -f docker-compose.yaml -f docker-extras/nvidia.yaml run ${IMAGE_NAME} bash
 
+# Update dependencies using uv
 requirements-update:
 	@echo "Building with fresh dependencies..."
 	docker compose -f docker-compose.yaml build --build-arg UPDATE_DEPS=true
-	@echo "Extracting new requirements.lock..."
-	docker create --name temp-extract $$(docker compose -f docker-compose.yaml images -q ${IMAGE_NAME})
-	docker cp temp-extract:/code/requirements.lock .
-	docker rm temp-extract
-	@echo "requirements.lock has been updated"
+	@$(MAKE) extract-lock
 
 clean-requirements:
 	rm -f requirements.lock

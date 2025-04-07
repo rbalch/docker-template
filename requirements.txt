@@ -1,7 +1,7 @@
+fastapi
+uvicorn[standard]
+debugpy  # for debugging support
 asyncpg
-debugpy
-fastapi[all]
 python-dotenv
-uvicorn
 watchdog
 websockets

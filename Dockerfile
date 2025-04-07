@@ -33,8 +33,8 @@ ENV PROMPT_COMMAND="history -a"
 RUN mkdir -p /huggingface_cache
 ENV HF_DATASETS_CACHE="/huggingface_cache"
 
-# Setup pip-tools
-RUN pip install pip-tools
+# Install uv directly with pip (more reliable than the install script for Docker)
+RUN pip install uv
 
 # Copy requirements files
 COPY requirements.txt .
@@ -47,13 +47,13 @@ ARG UPDATE_DEPS=false
 # Generate lock file only if UPDATE_DEPS=true or if requirements.lock doesn't exist
 RUN if [ "$UPDATE_DEPS" = "true" ] || [ ! -f requirements.lock ]; then \
         echo "Generating new requirements.lock..." && \
-        pip-compile --output-file=requirements.lock requirements.txt; \
+        uv pip compile requirements.txt -o requirements.lock; \
     else \
         echo "Using existing requirements.lock"; \
     fi
 
 # Install dependencies
-RUN pip install -r requirements.lock
+RUN uv pip sync requirements.lock
 
 FROM build AS runtime
 # Copy app code
@@ -64,4 +64,4 @@ COPY . .
 ENTRYPOINT ["uvicorn", "server:app"] 
 # actual command to run - this allows for easy override of file or adding switches
 # ex: ["app.py"]
-CMD ["--host", "0.0.0.0", "--port", "8080"]
+CMD ["--host", "0.0.0.0", "--port", "8000"]
