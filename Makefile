@@ -2,6 +2,8 @@ IMAGE_NAME = mcp_playground
 
 # Helper to extract requirements.lock from container
 extract-lock:
+	@echo "Delete lock file..."
+	rm -f requirements.lock
 	@echo "Extracting requirements.lock..."
 	@docker create --name temp-extract $$(docker compose -f docker-compose.yaml images -q ${IMAGE_NAME})
 	@docker cp temp-extract:/code/requirements.lock .
@@ -15,7 +17,8 @@ build:
 
 # Build with dependency updates
 build-update:
-	docker compose -f docker-compose.yaml build --build-arg UPDATE_DEPS=true
+	@echo "Setting UPDATE_DEPS=true"
+	UPDATE_DEPS=true docker compose -f docker-compose.yaml build --no-cache
 	@$(MAKE) extract-lock
 
 up:
@@ -40,7 +43,8 @@ command-raw-gpu:
 # Update dependencies using uv
 requirements-update:
 	@echo "Building with fresh dependencies..."
-	docker compose -f docker-compose.yaml build --build-arg UPDATE_DEPS=true
+	@echo "Setting UPDATE_DEPS=true"
+	UPDATE_DEPS=true docker compose -f docker-compose.yaml build --no-cache
 	@$(MAKE) extract-lock
 
 clean-requirements:
