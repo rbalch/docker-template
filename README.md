@@ -1,61 +1,114 @@
-# docker-template
-standard template to clone a new project
+# Docker Template
 
-## Use
+A streamlined Docker template for Python projects with FastAPI integration, designed for both standard and GPU-accelerated development environments.
 
-1. Clone repo
-2. Change docker-compose.yaml service name
-3. If using nvidia/gpu, change docker-extras/nvidia.yaml
-4. Look at Makefile for built-in commands
+## Features
 
-## Dependency Management
+- Multi-stage Docker build for optimized image size
+- Poetry-based dependency management
+- FastAPI server with hot-reload for development
+- NVIDIA GPU support for machine learning workloads
+- Persistent volumes for history, VS Code server, and HuggingFace cache
+- Makefile for simplified Docker operations
 
-This project uses uv for dependency management with a two-mode approach:
+## Prerequisites
 
-### Normal Development
-- Add your dependencies to `requirements.txt`
-- Run `make build` to build using the existing lock file
-- All builds automatically extract the requirements.lock file to your local directory
+- Docker and Docker Compose
+- Make (for using the Makefile commands)
+- For GPU support: NVIDIA Container Toolkit
+
+## Getting Started
+
+### Basic Setup
+
+1. Clone this repository
+2. Update the `pyproject.toml` with your project details and dependencies
+3. Build the Docker image:
+
+```bash
+make build
+```
+
+4. Start the container:
+
+```bash
+make up
+```
+
+The FastAPI server will be available at http://localhost:8000
+
+### Adding or Updating Dependencies
+
+1. Modify the `pyproject.toml` file with your new dependencies
+2. Rebuild the image with the updated dependencies:
+
+```bash
+make build-update
+```
+
+This command will:
+- Delete the existing `poetry.lock` file
+- Rebuild the Docker image
+- Extract the new `poetry.lock` file from the container
+
+### GPU Support
+
+For machine learning workloads requiring GPU acceleration:
+
+1. Build the GPU-enabled image:
+
+```bash
+make build-gpu
+```
+
+2. Start the container with GPU support:
+
+```bash
+make up-gpu
+```
+
+## Makefile Commands
+
+| Command | Description |
+|---------|-------------|
+| `make build` | Build the Docker image |
+| `make build-update` | Rebuild image and update lock file |
+| `make build-gpu` | Build with NVIDIA GPU support |
+| `make up` | Start the container |
+| `make up-gpu` | Start with NVIDIA GPU support |
+| `make command` | Execute bash in running container |
+| `make command-raw` | Run a new container with bash |
+| `make command-raw-gpu` | Run a new GPU container with bash |
+| `make extract-lock` | Extract poetry.lock from container |
+| `make clean-requirements` | Remove poetry.lock file |
+
+## Project Structure
+
+- `Dockerfile`: Multi-stage build configuration
+- `docker-compose.yaml`: Main Docker Compose configuration
+- `docker-compose-nvidia.yaml`: NVIDIA GPU extension
+- `pyproject.toml`: Poetry dependency management
+- `server.py`: FastAPI application entry point
+- `Makefile`: Simplified Docker operations
+
+## Customization
 
 ### Updating Dependencies
-- To update all dependencies to their latest versions:
-  ```bash
-  make requirements-update  # Updates dependencies and extracts requirements.lock
-  ```
 
-- To force a build with fresh dependencies:
-  ```bash
-  make build-update  # Same as requirements-update
-  ```
+1. Edit `pyproject.toml` to add/modify dependencies
+2. Run `make build-update` to rebuild with new dependencies
+3. The updated `poetry.lock` will be extracted automatically
 
-- To remove the lock file and start fresh:
-  ```bash
-  make clean-requirements
-  make build  # Will generate a new lock file and extract it
-  ```
+### Modifying the FastAPI Server
 
-## About uv
+The `server.py` file contains a minimal FastAPI setup. Extend it by:
+- Adding new routes
+- Implementing middleware
+- Connecting to databases
+- Organizing larger projects into modules
 
-[uv](https://github.com/astral-sh/uv) is a fast Python package installer and resolver written in Rust. It offers:
+## Notes
 
-- Up to 10x faster dependency resolution than pip
-- Compatible with existing requirements.txt and lock files
-- Parallel downloads and installations
-- Better error messages and stricter dependency resolution
-
-This project uses the following uv commands:
-- `uv pip compile` - Generate lock file from requirements.txt
-- `uv pip sync` - Install packages from lock file
-
-## Available Commands
-
-- `make build` - Build container (uses locked dependencies) and extract lock file
-- `make build-update` - Build container with fresh dependencies and extract lock file
-- `make build-gpu` - Build with NVIDIA support and extract lock file
-- `make up` - Start container
-- `make up-gpu` - Start container with NVIDIA support
-- `make command` - Open shell in running container
-- `make command-raw` - Run container with shell
-- `make command-raw-gpu` - Run container with shell (NVIDIA)
-- `make extract-lock` - Extract requirements.lock from the container
-- `make clean-requirements` - Remove requirements.lock file
+- External volumes (`root_hist`, `vscode-server`, `huggingface-cache`) must exist before running the containers
+- Debug mode can be enabled by setting the `DEBUG` environment variable
+- VS Code debugging is pre-configured but commented out in the docker-compose file

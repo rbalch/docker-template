@@ -1,14 +1,13 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-import mcp
 
 debug = bool(os.getenv("DEBUG", False))
 
 app = FastAPI(
-    title='MCP Server',
+    title='Docker Template',
     version='1.0',
-    description='MCP Server with FastAPI',
+    description='Docker Template with FastAPI',
 )
 
 # Set all CORS enabled origins
@@ -21,18 +20,10 @@ app.add_middleware(
     expose_headers=["*"],
 )
 
-# Register MCP routes with FastAPI
-mcp.setup_fastapi(app)
-
 # Your existing endpoints
 @app.get('/')
 async def home():
     return {'message': 'Home'}
-
-# MCP-specific endpoint for status
-@app.get('/mcp/status')
-async def mcp_status():
-    return {'status': 'running', 'version': mcp.__version__}
 
 if debug:
     import debugpy

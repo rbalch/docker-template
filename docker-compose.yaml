@@ -1,11 +1,9 @@
 services:
-  mcp_playground:
-    container_name: mcp_playground
+  docker_template:
+    container_name: docker_template
     build:
       context: .
-      target: build
-      args:
-        - UPDATE_DEPS=${UPDATE_DEPS:-false}
+      target: base
     volumes:
       - .:/code
       - root_hist:/root/history # i keep roots history across everything
@@ -17,8 +15,8 @@ services:
     ports:
       - "8000:8000" # serving site
     #   - "5678:5678" # debugger
-    # environment:
-    #   DEBUG: true
+    environment:
+      DEBUG: false
     command: uvicorn server:app --reload --host 0.0.0.0 --port 8000 --reload --log-level debug
 
 volumes:

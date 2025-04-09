@@ -1,67 +1,66 @@
-FROM python:3.12-slim AS build
-# FROM nvidia/cuda:12.1.0-base-ubi8 as build
-LABEL maintainer="ryan@balch.io"
+# === Builder Stage ===
+FROM python:3.12-slim AS base
 
-# Install system packages required by System/Python.
-RUN apt update -y \
-  && apt install --no-install-recommends -y \
+# Install build tools and required system packages
+RUN apt update -y && apt install --no-install-recommends -y \
     build-essential \
-    git \
     vim \
-    make \
     python3-dev \
     python3-pip \
-    python3-venv
+    curl
 
-# Use /code folder as a directory where the source code is stored.
 WORKDIR /code
 
-# Set up a Python virtual environment and activate it.
-RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
-# Set environment variables.
-ENV PYTHONUNBUFFERED 1
+# Set environment variables for Python behavior and module discovery
+ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH="$PYTHONPATH:/code"
 
-# Setup history
-RUN mkdir /root/history
+# Setup history for interactive sessions (ensuring it’s mappable with a volume)
+RUN mkdir -p /root/history
 ENV HISTFILE=/root/history/.bash_history
 ENV PROMPT_COMMAND="history -a"
 
-# build huggingface cache
+# Build the Huggingface cache directory
 RUN mkdir -p /huggingface_cache
-ENV HF_DATASETS_CACHE="/huggingface_cache"
 
-# Install uv directly with pip (more reliable than the install script for Docker)
-RUN pip install uv
+# Install Poetry inside the container
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH="/root/.local/bin:$PATH"
 
-# Copy requirements files
-COPY requirements.txt .
-# Copy lock file if it exists
-COPY requirements.lock* .
+# Configure Poetry to install directly into system Python (no venv)
+RUN poetry config virtualenvs.create false
 
-# ARG to control whether to update dependencies
-ARG UPDATE_DEPS=false
+# Copy project dependency descriptors
+COPY pyproject.toml poetry.lock* ./
 
-# Generate lock file only if UPDATE_DEPS=true or if requirements.lock doesn't exist
-RUN if [ "$UPDATE_DEPS" = "true" ] || [ ! -f requirements.lock ]; then \
-        echo "Generating new requirements.lock..." && \
-        uv pip compile requirements.txt -o requirements.lock; \
-    else \
-        echo "Using existing requirements.lock"; \
-    fi
+# Install dependencies using Poetry into the system environment
+RUN poetry install --no-root --no-interaction --no-ansi --only main
 
-# Install dependencies
-RUN uv pip sync requirements.lock
+# === Runtime Stage ===
+FROM python:3.12-slim AS runtime
 
-FROM build AS runtime
-# Copy app code
+WORKDIR /code
+
+# Copy installed dependencies from the builder
+COPY --from=base /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=base /usr/local/bin /usr/local/bin
+
+# Reapply the environment variables for runtime and module resolution
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH="$PYTHONPATH:/code"
+
+# Recreate history and Huggingface cache directories (so they can be mapped via Docker Compose)
+RUN mkdir -p /root/history
+ENV HISTFILE=/root/history/.bash_history
+ENV PROMPT_COMMAND="history -a"
+
+RUN mkdir -p /huggingface_cache
+
+# Copy the rest of your application code
 COPY . .
 
-# Run app
-# where app lives ex: ["streamlit", "run"]
-ENTRYPOINT ["uvicorn", "server:app"] 
-# actual command to run - this allows for easy override of file or adding switches
-# ex: ["app.py"]
-CMD ["--host", "0.0.0.0", "--port", "8000"]
+# Expose your service port
+EXPOSE 8000
+
+# Final command to run your app
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8000"]
