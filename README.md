@@ -109,6 +109,13 @@ The `server.py` file contains a minimal FastAPI setup. Extend it by:
 
 ## Notes
 
-- External volumes (`root_hist`, `vscode-server`, `huggingface-cache`) must exist before running the containers
+- External volumes (`root_hist`, `vscode-server`, `huggingface-cache`) must exist before running the containers. Create them with:
+
+```bash
+docker volume create root_hist
+docker volume create vscode-server
+docker volume create huggingface-cache
+```
+
 - Debug mode can be enabled by setting the `DEBUG` environment variable
-- VS Code debugging is pre-configured but commented out in the docker-compose file
+- VS Code debugging is pre-configured but disabled by default in the docker-compose file
