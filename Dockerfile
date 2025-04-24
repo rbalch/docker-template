@@ -22,6 +22,7 @@ ENV PROMPT_COMMAND="history -a"
 
 # Build the Huggingface cache directory
 RUN mkdir -p /huggingface_cache
+ENV HF_HOME="/huggingface_cache"
 
 # Install Poetry inside the container
 RUN curl -sSL https://install.python-poetry.org | python3 -
@@ -55,6 +56,7 @@ ENV HISTFILE=/root/history/.bash_history
 ENV PROMPT_COMMAND="history -a"
 
 RUN mkdir -p /huggingface_cache
+ENV HF_HOME="/huggingface_cache"
 
 # Copy the rest of your application code
 COPY . .
