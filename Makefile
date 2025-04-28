@@ -2,7 +2,7 @@ IMAGE_NAME = docker_template
 
 extract-lock:
 	@echo "Extracting poetry.lock from container..."
-	@docker create --name temp-extract $$(docker compose -f docker-compose.yaml images -q ${IMAGE_NAME})
+	@docker create --name temp-extract ${IMAGE_NAME}
 	@docker cp temp-extract:/code/poetry.lock .
 	@docker rm temp-extract
 	@echo "Lock file updated locally."
