@@ -1,5 +1,6 @@
 # === Builder Stage ===
 FROM python:3.12-slim AS base
+# FROM nvidia/cuda:12.1.0-base-ubi8 as build
 
 # Install build tools and required system packages
 RUN apt update -y && apt install --no-install-recommends -y \
