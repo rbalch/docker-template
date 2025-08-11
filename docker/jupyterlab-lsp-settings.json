@@ -1,0 +1,7 @@
+{
+  "experimental.completion.disableJupyter": true,
+  "experimental.completion.disableKernel": false,
+  "experimental.completion.disableLSP": false,
+  "experimental.completion.overrideDefault": true,
+  "experimental.completion.suppressTriggerCharacter": false
+}

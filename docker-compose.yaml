@@ -1,27 +1,52 @@
 services:
-  docker_template:
-    container_name: docker_template
+  # docker_template:
+  #   container_name: docker_template
+  #   build:
+  #     context: .
+  #     target: base
+  #   volumes:
+  #     - .:/code
+  #     - root_hist:/root/history # i keep roots history across everything
+  #     - huggingface-cache:/root/.cache/huggingface
+  #     # - ~/.config/gcloud:/.config/gcloud
+  #   stdin_open: true
+  #   tty: true
+  #   ports:
+  #     - "8000:8000" # serving site
+  #   #   - "5678:5678" # debugger
+  #   environment:
+  #     DEBUG: false
+  #   command: uvicorn server:app --reload --host 0.0.0.0 --port 8000 --reload --log-level debug
+
+  jupyter:
     build:
       context: .
-      target: base
+      dockerfile: docker/jupyter.Dockerfile
+    # container_name: jupyter
     volumes:
-      - .:/code
-      - root_hist:/root/history # i keep roots history across everything
+      - .:/home/jovyan/code
+      - ./:/code
+      - root-history:/root/history
       - vscode-server:/root/.vscode-server
       - huggingface-cache:/root/.cache/huggingface
-      # - ~/.config/gcloud:/.config/gcloud
+      - google-vscode-extension-cache:/root/.cache/google-vscode-extension
+      - ~/.gemini:/root/.gemini
+      # - ~/.config/gcloud:/root/.config/gcloud # uncomment to add gcp credentials
+      - /var/run/docker.sock:/var/run/docker.sock # expose docker socket
+    ports:
+      - "8888:8888"
+    environment:
+      JUPYTER_TOKEN: ""
+      JUPYTER_ALLOW_HIDDEN: True
+      GOOGLE_CLOUD_PROJECT: 
+    working_dir: /home/jovyan/code
     stdin_open: true
     tty: true
-    ports:
-      - "8000:8000" # serving site
-    #   - "5678:5678" # debugger
-    environment:
-      DEBUG: false
-    command: uvicorn server:app --reload --host 0.0.0.0 --port 8000 --reload --log-level debug
+    command: start-notebook.sh --ServerApp.allow_hidden=True
 
 volumes:
-  root_hist:
-    name: root_hist
+  root-history:
+    name: root-history
     external: true
   vscode-server:
     name: vscode-server
@@ -29,3 +54,7 @@ volumes:
   huggingface-cache:
     name: huggingface-cache
     external: true
+  google-vscode-extension-cache:
+    name: google-vscode-extension-cache
+    external: true
+  

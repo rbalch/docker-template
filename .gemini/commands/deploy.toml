@@ -1,0 +1,9 @@
+# Invoked via: /deploy
+
+description = "Deploys the app to..."
+prompt = """
+Deploy the app to... 
+
+1.
+2.
+"""
