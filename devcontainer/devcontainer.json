@@ -1,0 +1,30 @@
+{
+  "name": "app",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+  // "mounts": [
+  //   "source=${localWorkspaceFolder}/app,target=/code,type=bind"
+  // ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "esbenp.prettier-vscode",
+        "google.geminicodeassist",
+        "charliermarsh.ruff",
+        "googlecloudtools.cloudcode"
+      ],
+      // "postCreateCommand": "make install || true",
+      "remoteEnv": {
+        "PYTHONUNBUFFERED": "1"
+      },
+      // "mounts": [
+      //   "source=${localWorkspaceFolder},target=/code,type=bind"
+      // ],
+      "forwardPorts": [
+        8000
+      ]
+    }
+  }
+}
